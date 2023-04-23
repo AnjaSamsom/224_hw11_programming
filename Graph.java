@@ -181,12 +181,30 @@ public class Graph {
 
   private void constructResidualGraph(int delta) {
     // implement this
+    for(Node n : nodes)
+        n.adjlistResid.clear();
+    
+    
+
+    
+
+        
+
+
   } // constructResidualGraph()
 
   //----------------------------------------------------------------
 
   private int findBottleneck(List<Edge> path) {
     // implement this
+    // not really good
+    int bottleneck = 100;
+    for(Edge e : path)
+    {
+        if(e.flow < bottleneck)
+            bottleneck = e.flow;
+    }
+    return bottleneck;
   }
 
   //----------------------------------------------------------------
@@ -215,7 +233,18 @@ public class Graph {
 
     for(Edge e : edges)
     {
-        
+        e.flow = 0;
+    }
+
+
+    // while there is an s t path in the residual graph
+    while(findPathInResid(s, t).size() >= 0)
+    {
+        List<Edge> path = findPathInResid(s, t);
+        augment(path);
+        constructResidualGraph(1);
+
+
     }
 
 
