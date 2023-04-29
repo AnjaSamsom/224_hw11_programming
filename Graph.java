@@ -191,10 +191,9 @@ public class Graph {
       addResidualEdge(e.n1, e.n2, e.capacity, e.isBackward);
 
     }
-    
-    
-    
 
+
+    
   } // constructResidualGraph()
 
   //----------------------------------------------------------------
@@ -234,21 +233,25 @@ public class Graph {
   public int maxFlow(Node s, Node t) {
     // implement this
     List<Edge> edges = getEdges();
-    int flow;
+    int flow = 0;
 
     for(Edge e : edges)
     {
-        e.flow = 0;
+      e.flow = 0;
     }
 
+    System.out.println(findPathInResid(s, t));
     // while there is an s t path in the residual graph
-    while(findPathInResid(s, t).size() >= 0)
+    while(findPathInResid(s, t).size() > 0)
     {
-        List<Edge> path = findPathInResid(s, t);
-        augment(path);
-        constructResidualGraph(1);
+      List<Edge> path = findPathInResid(s, t);
+      augment(path);
+      constructResidualGraph(1);
+      for(Edge e : path)
+      {
+        flow += e.flow;
+      }
     }
-
 
     System.out.println("max flow is " + flow);
 
