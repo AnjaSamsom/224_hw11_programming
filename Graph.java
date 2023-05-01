@@ -148,23 +148,23 @@ public class Graph {
   public boolean checkFlow(Node s, Node t) {
     // check that flow out of s == flow into t
     // check conservation condition at each node
-
     
-    List<Edge> edges = getEdges();
     int s_flow = 0;
     int t_flow = 0;
 
-    for(Edge e : edges)
+
+    for(Edge e : s.adjlist)
     {
-        if(e.n1 == s)
-        {
-            s_flow = e.flow;
-        }
-        if(e.n2 == t)
-        {
-            t_flow = e.flow;
-        }
+      s_flow = e.flow;
     }
+
+    for(Edge e : t.adjlist)
+    {
+      t_flow = e.flow;
+    }
+
+    System.out.println("s flow is " + s_flow);
+    System.out.println("t flow is " + t_flow);
 
     if(s_flow != t_flow)
     {
@@ -181,19 +181,34 @@ public class Graph {
 
   private void constructResidualGraph(int delta) {
     // implement this
+
     for(Node n : nodes)
       n.adjlistResid.clear();
 
-    List<Edge> edges = getEdges();
-
-    for(Edge e : edges)
+    for(Node n : nodes)
     {
-      addResidualEdge(e.n1, e.n2, e.capacity, e.isBackward);
+      for(Edge e : n.adjlist)
+      {
+        if(e.flow > 0)
+        {
+          int back = e.flow;
+          // make the edge in the residual graph 
+          // a backward arrow with the flow
+          addResidualEdge(e.n2, e.n1, back, true);
+        }
 
+        if(e.capacity > e.flow)
+        {
+          System.out.println("capacity > flow");
+
+          int forward = e.capacity - e.flow;
+          // make the edge in the residual graph
+          // a forward arrow with the leftover capacity
+          addResidualEdge(e.n1, e.n2, forward, false);
+        }
+      }
     }
 
-
-    
   } // constructResidualGraph()
 
   //----------------------------------------------------------------
@@ -204,8 +219,8 @@ public class Graph {
     int bottleneck = Integer.MAX_VALUE;
     for(Edge e : path)
     {
-        if(e.flow < bottleneck)
-            bottleneck = e.flow;
+        if(e.capacity < bottleneck)
+            bottleneck = e.capacity;
     }
     return bottleneck;
   }
@@ -216,14 +231,24 @@ public class Graph {
     // implement this
     // IMPLEMENTED
     int b = findBottleneck(path);
+
     for(Edge e : path)
     {
         if(e.isBackward == false)
-            e.flow += b;
+        {
+          for(Edge e2 : e.n1.adjlist)
+          {
+            e2.flow += b;
+          }
+
+
+        }
         else
         {
-            e = new Edge(e.n2, e.n2, e.capacity, e.flow);
-            e.flow -= b;
+          for(Edge e2 : e.n1.adjlist)
+          {
+            e2.flow += b;
+          }
         }
     }
   }
@@ -240,20 +265,27 @@ public class Graph {
       e.flow = 0;
     }
 
-    System.out.println(findPathInResid(s, t));
+    constructResidualGraph(1);
+
+    List<Edge> path = findPathInResid(s, t);
+
     // while there is an s t path in the residual graph
-    while(findPathInResid(s, t).size() > 0)
+    while(path.size() > 0)
     {
-      List<Edge> path = findPathInResid(s, t);
+
+      
       augment(path);
       constructResidualGraph(1);
-      for(Edge e : path)
-      {
-        flow += e.flow;
-      }
+
+      // update residual graph
+      path = findPathInResid(s, t);
+
     }
 
-    System.out.println("max flow is " + flow);
+    for(Edge e : s.adjlist)
+    {
+      flow += e.flow;
+    }
 
     return flow;
   } // maxFlow()
