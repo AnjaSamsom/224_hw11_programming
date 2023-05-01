@@ -4,7 +4,9 @@ import java.util.List;
 
 public class Main {
   public static void main(String args[]) {
+    System.out.println("Test One");
     testOne();
+    //System.out.println("\n\n\n\n\nTest Two");
     //testTwo();
   }
 
