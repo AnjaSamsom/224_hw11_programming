@@ -160,7 +160,20 @@ public class Graph {
 
 		for (Edge e : t.adjlist) 
 		{
+
 			t_flow += e.flow;
+			System.out.println(e.flow);
+
+		}
+
+		for(Node n : nodes)
+		{
+
+			for(Edge e : n.adjlist)
+			{
+				if(e.n2 == t)
+					t_flow += e.flow;
+			}
 		}
 
 		if (s_flow != t_flow) 
@@ -182,12 +195,14 @@ public class Graph {
 		for (Node n : nodes)
 			n.adjlistResid.clear();
 
+
 		for (Node n : nodes) 
 		{
+
 			for (Edge e : n.adjlist) 
 			{
 
-				if (e.capacity < e.flow) 
+				if (e.flow < e.capacity) 
 				{
 					int forward = e.capacity - e.flow;
 					// make the edge in the residual graph
@@ -217,6 +232,7 @@ public class Graph {
 			if (e.capacity < bottleneck)
 				bottleneck = e.capacity;
 		}
+
 		return bottleneck;
 	}
 
@@ -226,27 +242,42 @@ public class Graph {
 	{
 		int b = findBottleneck(path);
 
-		for (Edge e : path) 
+		for (Edge residual_edge : path) 
 		{
-
+		
 			// backward edge
-			// add b to flow
-			if (e.isBackward == false) 
+			// subtract b from flow
+			if (residual_edge.isBackward == true) 
 			{
-				e.flow += b;
+				// changing stuff in the actual graph
+				for(Edge e : residual_edge.n1.adjlist)
+				{
+					if(e.n1.name == residual_edge.n1.name && e.n2.name == residual_edge.n2.name)
+					{
+						Edge temp = new Edge(e.n1, e.n2, e.capacity, e.flow);
+						e.n1 = temp.n2;
+						e.n2 = temp.n1;
+						e.flow -= b;
+					}
+				}
 			}
 
 			// forward edge
-			// subtract b from flow
-			//
-			if (e.isBackward == true) 
+			// add b to flow
+			if (residual_edge.isBackward == false) 
 			{
-				Edge temp = new Edge(e.n1, e.n2, e.capacity, e.flow);
-				e.n1 = temp.n2;
-				e.n2 = temp.n1;
-				e.flow -= b;
+				// changing stuff in the actual graph
+				for(Edge e : residual_edge.n1.adjlist)
+				{
+					if(e.n1.name == residual_edge.n1.name && e.n2.name == residual_edge.n2.name)
+					{
+						e.flow += b;
+					}
+				}
 			}
+
 		}
+		constructResidualGraph(b);
 	}
 
 	// ----------------------------------------------------------------
@@ -259,6 +290,7 @@ public class Graph {
 		for (Edge e : edges) {
 			e.flow = 0;
 		}
+
 
 		constructResidualGraph(1);
 

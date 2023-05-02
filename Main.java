@@ -6,8 +6,8 @@ public class Main {
   public static void main(String args[]) {
     System.out.println("Test One");
     testOne();
-    //System.out.println("\n\n\n\n\nTest Two");
-    //testTwo();
+    System.out.println("\n\n\nTest Two");
+    testTwo();
   }
 
   //---------------------------------------------------------------------
@@ -75,5 +75,6 @@ public class Main {
     G.maxFlow(n1, n5);
     G.print();
     G.checkFlow(n1, n5);
+
   } // testTwo()
 }
